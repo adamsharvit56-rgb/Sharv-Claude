@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Hockey Projections</title>
+    <style>
+        :root {
+            --bg-dark: #0f1923;
+            --bg-card: #1a2733;
+            --bg-hover: #243442;
+            --border: #2d3f4f;
+            --text-primary: #e8edf2;
+            --text-secondary: #8899a6;
+            --accent: #1da1f2;
+            --accent-hover: #1a91da;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
+            --green: #17bf63;
+            --red: #e0245e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        header {
+            background: linear-gradient(135deg, #1a2733 0%, #0f1923 100%);
+            border-bottom: 2px solid var(--accent);
+            padding: 32px 0;
+            text-align: center;
+        }
+
+        header h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
+        .subtitle { color: var(--text-secondary); font-size: 1rem; }
+
+        .controls {
+            display: flex; align-items: flex-end; gap: 24px; flex-wrap: wrap;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px; padding: 20px 24px; margin: 28px 0;
+        }
+
+        .control-group { display: flex; flex-direction: column; gap: 6px; }
+
+        .control-group label {
+            font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--text-secondary);
+        }
+
+        select {
+            background: var(--bg-dark); color: var(--text-primary);
+            border: 1px solid var(--border); border-radius: 6px;
+            padding: 8px 12px; font-size: 0.9rem; cursor: pointer;
+        }
+
+        select:focus { outline: none; border-color: var(--accent); }
+
+        input[type="range"] {
+            width: 160px; padding: 8px 0; -webkit-appearance: none;
+            background: transparent; border: none;
+        }
+
+        input[type="range"]::-webkit-slider-track {
+            height: 6px; background: var(--bg-dark); border-radius: 3px;
+            border: 1px solid var(--border);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 18px; height: 18px;
+            background: var(--accent); border-radius: 50%; cursor: pointer; margin-top: -7px;
+        }
+
+        #regression-value {
+            font-size: 0.85rem; color: var(--accent); font-weight: 600;
+            min-width: 32px; display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--accent); color: white; border: none; border-radius: 6px;
+            padding: 10px 24px; font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; transition: background 0.2s; margin-left: auto;
+        }
+
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-primary:active { transform: scale(0.98); }
+
+        .table-section { margin-bottom: 36px; }
+
+        .table-section h2 {
+            font-size: 1.3rem; margin-bottom: 12px;
+            border-left: 3px solid var(--accent); padding-left: 12px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto; border-radius: 10px; border: 1px solid var(--border);
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        thead { background: var(--bg-card); }
+
+        th {
+            padding: 12px 14px; text-align: left; font-weight: 600;
+            font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-secondary); border-bottom: 2px solid var(--border);
+            white-space: nowrap; user-select: none;
+        }
+
+        th.sortable { cursor: pointer; transition: color 0.2s; }
+        th.sortable:hover { color: var(--accent); }
+        th.active-sort { color: var(--accent); }
+        th.active-sort::after { content: ' \25BC'; font-size: 0.7rem; }
+        th.active-sort.asc::after { content: ' \25B2'; }
+
+        td { padding: 10px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+
+        .num-col { text-align: right; }
+        .rank-col { text-align: center; width: 50px; }
+        .player-col { min-width: 180px; }
+
+        tbody tr { transition: background 0.15s; }
+        tbody tr:hover { background: var(--bg-hover); }
+
+        .rank-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px; border-radius: 50%; font-weight: 700; font-size: 0.8rem;
+        }
+
+        .rank-1 { background: var(--gold); color: #1a1a1a; }
+        .rank-2 { background: var(--silver); color: #1a1a1a; }
+        .rank-3 { background: var(--bronze); color: #1a1a1a; }
+
+        .player-name { font-weight: 600; }
+
+        .player-team-badge {
+            display: inline-block; background: var(--bg-dark); border: 1px solid var(--border);
+            border-radius: 4px; padding: 1px 6px; font-size: 0.75rem;
+            font-weight: 600; color: var(--text-secondary); margin-left: 8px;
+        }
+
+        .stat-highlight { color: var(--green); font-weight: 600; }
+
+        .info-box {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+            padding: 16px 20px; margin-bottom: 24px; font-size: 0.85rem;
+            color: var(--text-secondary); line-height: 1.7;
+        }
+
+        .info-box strong { color: var(--text-primary); }
+
+        footer {
+            border-top: 1px solid var(--border); padding: 24px 0; margin-top: 48px;
+            text-align: center; color: var(--text-secondary); font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.6rem; }
+            .controls { flex-direction: column; align-items: stretch; }
+            .btn-primary { margin-left: 0; }
+            table { font-size: 0.8rem; }
+            th, td { padding: 8px 10px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Fantasy Hockey Projections</h1>
+            <p class="subtitle">NHL player stat projections for fantasy leagues</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="info-box">
+            <strong>How it works:</strong> Current per-game rates are extrapolated to a full 82-game season,
+            with optional regression toward league-average rates. Adjust the <strong>regression weight</strong>
+            to control how much projections are pulled toward the mean. Fantasy points use standard scoring:
+            <strong>Goals = 3 pts</strong>, <strong>Assists = 2 pts</strong>, <strong>Wins = 4 pts</strong>, <strong>Shutouts = 5 pts</strong>.
+            Click any column header to sort.
+        </div>
+
+        <section class="controls">
+            <div class="control-group">
+                <label for="regression">Regression Weight</label>
+                <input type="range" id="regression" min="0" max="100" value="15">
+                <span id="regression-value">0.15</span>
+            </div>
+            <div class="control-group">
+                <label for="position">Position</label>
+                <select id="position">
+                    <option value="all">All Players</option>
+                    <option value="skaters">Skaters Only</option>
+                    <option value="goalies">Goalies Only</option>
+                </select>
+            </div>
+            <button id="refresh-btn" class="btn-primary">Update Projections</button>
+        </section>
+
+        <section id="skaters-section" class="table-section">
+            <h2>Skater Projections</h2>
+            <div class="table-wrapper">
+                <table id="skaters-table">
+                    <thead>
+                        <tr>
+                            <th class="rank-col">Rank</th>
+                            <th class="player-col sortable" data-sort="name">Player</th>
+                            <th class="sortable" data-sort="position">Pos</th>
+                            <th class="sortable" data-sort="team">Team</th>
+                            <th class="num-col sortable" data-sort="projected_gp">GP</th>
+                            <th class="num-col sortable" data-sort="projected_goals">G</th>
+                            <th class="num-col sortable" data-sort="projected_assists">A</th>
+                            <th class="num-col sortable" data-sort="projected_points">PTS</th>
+                            <th class="num-col sortable active-sort" data-sort="fantasy_points">FPts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="skaters-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="goalies-section" class="table-section">
+            <h2>Goalie Projections</h2>
+            <div class="table-wrapper">
+                <table id="goalies-table">
+                    <thead>
+                        <tr>
+                            <th class="rank-col">Rank</th>
+                            <th class="player-col sortable" data-sort="name">Player</th>
+                            <th class="sortable" data-sort="team">Team</th>
+                            <th class="num-col sortable" data-sort="projected_gp">GP</th>
+                            <th class="num-col sortable" data-sort="projected_wins">W</th>
+                            <th class="num-col sortable" data-sort="projected_save_pct">SV%</th>
+                            <th class="num-col sortable" data-sort="projected_gaa">GAA</th>
+                            <th class="num-col sortable" data-sort="projected_shutouts">SO</th>
+                            <th class="num-col sortable active-sort" data-sort="fantasy_points">FPts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="goalies-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Fantasy Hockey Projections &mdash; Pace-based projections with regression toward league averages</p>
+        </div>
+    </footer>
+
+    <script>
+    (function () {
+        // ---- Raw player data ----
+        const RAW_SKATERS = [
+            { name: "Connor McDavid", team: "EDM", position: "C", games_played: 78, goals: 44, assists: 76, points: 120 },
+            { name: "Auston Matthews", team: "TOR", position: "C", games_played: 74, goals: 51, assists: 38, points: 89 },
+            { name: "Leon Draisaitl", team: "EDM", position: "C", games_played: 81, goals: 41, assists: 65, points: 106 },
+            { name: "Cale Makar", team: "COL", position: "D", games_played: 77, goals: 21, assists: 69, points: 90 },
+            { name: "Mikko Rantanen", team: "COL", position: "RW", games_played: 80, goals: 42, assists: 63, points: 105 },
+            { name: "David Pastrnak", team: "BOS", position: "RW", games_played: 82, goals: 47, assists: 50, points: 97 },
+            { name: "Nikita Kucherov", team: "TBL", position: "RW", games_played: 81, goals: 44, assists: 56, points: 100 },
+            { name: "Nathan MacKinnon", team: "COL", position: "C", games_played: 82, goals: 39, assists: 61, points: 100 },
+            { name: "Quinn Hughes", team: "VAN", position: "D", games_played: 82, goals: 17, assists: 75, points: 92 },
+            { name: "Mitch Marner", team: "TOR", position: "RW", games_played: 82, goals: 26, assists: 59, points: 85 },
+            { name: "Kirill Kaprizov", team: "MIN", position: "LW", games_played: 79, goals: 46, assists: 52, points: 98 },
+            { name: "Matthew Tkachuk", team: "FLA", position: "LW", games_played: 80, goals: 35, assists: 55, points: 90 },
+            { name: "Jack Hughes", team: "NJD", position: "C", games_played: 72, goals: 34, assists: 42, points: 76 },
+            { name: "Sidney Crosby", team: "PIT", position: "C", games_played: 82, goals: 27, assists: 55, points: 82 },
+            { name: "Jesper Bratt", team: "NJD", position: "LW", games_played: 82, goals: 30, assists: 53, points: 83 },
+            { name: "Sam Reinhart", team: "FLA", position: "C", games_played: 82, goals: 57, assists: 37, points: 94 },
+            { name: "Alex Ovechkin", team: "WSH", position: "LW", games_played: 79, goals: 42, assists: 29, points: 71 },
+            { name: "Jack Eichel", team: "VGK", position: "C", games_played: 82, goals: 31, assists: 50, points: 81 },
+            { name: "Brady Tkachuk", team: "OTT", position: "LW", games_played: 80, goals: 37, assists: 40, points: 77 },
+            { name: "Sebastian Aho", team: "CAR", position: "C", games_played: 82, goals: 35, assists: 46, points: 81 },
+        ];
+
+        const RAW_GOALIES = [
+            { name: "Connor Hellebuyck", team: "WPG", games_played: 60, wins: 37, losses: 16, save_pct: 0.921, gaa: 2.39, shutouts: 4 },
+            { name: "Ilya Sorokin", team: "NYI", games_played: 55, wins: 30, losses: 18, save_pct: 0.915, gaa: 2.65, shutouts: 3 },
+            { name: "Igor Shesterkin", team: "NYR", games_played: 58, wins: 33, losses: 17, save_pct: 0.918, gaa: 2.52, shutouts: 5 },
+            { name: "Andrei Vasilevskiy", team: "TBL", games_played: 56, wins: 30, losses: 19, save_pct: 0.912, gaa: 2.72, shutouts: 2 },
+            { name: "Juuse Saros", team: "NSH", games_played: 58, wins: 28, losses: 22, save_pct: 0.910, gaa: 2.80, shutouts: 3 },
+            { name: "Linus Ullmark", team: "OTT", games_played: 52, wins: 27, losses: 18, save_pct: 0.913, gaa: 2.58, shutouts: 3 },
+            { name: "Jake Oettinger", team: "DAL", games_played: 57, wins: 31, losses: 18, save_pct: 0.914, gaa: 2.60, shutouts: 2 },
+            { name: "Stuart Skinner", team: "EDM", games_played: 53, wins: 29, losses: 17, save_pct: 0.905, gaa: 2.88, shutouts: 1 },
+        ];
+
+        // ---- League averages ----
+        const AVG = {
+            goals_pg: 0.30, assists_pg: 0.48, points_pg: 0.78,
+            wins_pg: 0.50, save_pct: 0.905, gaa: 2.95, shutouts_pg: 0.05
+        };
+
+        const FULL_GP = 82;
+
+        // ---- Projection engine ----
+        function projectSkater(p, regr) {
+            const gp = p.games_played || 1;
+            const gpg = p.goals / gp, apg = p.assists / gp, ppg = p.points / gp;
+            const ag = (1 - regr) * gpg + regr * AVG.goals_pg;
+            const aa = (1 - regr) * apg + regr * AVG.assists_pg;
+            const ap = (1 - regr) * ppg + regr * AVG.points_pg;
+            return {
+                ...p,
+                projected_gp: FULL_GP,
+                projected_goals: Math.round(ag * FULL_GP),
+                projected_assists: Math.round(aa * FULL_GP),
+                projected_points: Math.round(ap * FULL_GP),
+                fantasy_points: Math.round(Math.round(ag * FULL_GP) * 3 + Math.round(aa * FULL_GP) * 2)
+            };
+        }
+
+        function projectGoalie(g, regr) {
+            const gp = g.games_played || 1;
+            const tgp = Math.min(Math.round(gp * (FULL_GP / gp)), 65);
+            const wpg = g.wins / gp, sopg = g.shutouts / gp;
+            const aw = (1 - regr) * wpg + regr * AVG.wins_pg;
+            const asv = (1 - regr) * g.save_pct + regr * AVG.save_pct;
+            const agaa = (1 - regr) * g.gaa + regr * AVG.gaa;
+            const aso = (1 - regr) * sopg + regr * AVG.shutouts_pg;
+            const pw = Math.round(aw * tgp), pso = Math.round(aso * tgp);
+            return {
+                ...g,
+                projected_gp: tgp,
+                projected_wins: pw,
+                projected_save_pct: parseFloat(asv.toFixed(3)),
+                projected_gaa: parseFloat(agaa.toFixed(2)),
+                projected_shutouts: pso,
+                fantasy_points: Math.round(pw * 4 + pso * 5)
+            };
+        }
+
+        // ---- Sorting ----
+        let skaterSort = { key: "fantasy_points", asc: false };
+        let goalieSort = { key: "fantasy_points", asc: false };
+
+        function sortData(data, st) {
+            return [...data].sort((a, b) => {
+                let va = a[st.key], vb = b[st.key];
+                if (typeof va === "string") {
+                    va = va.toLowerCase(); vb = vb.toLowerCase();
+                    return st.asc ? va.localeCompare(vb) : vb.localeCompare(va);
+                }
+                return st.asc ? va - vb : vb - va;
+            });
+        }
+
+        function updateSortUI(tableId, st) {
+            document.querySelectorAll("#" + tableId + " th.sortable").forEach(function (th) {
+                th.classList.remove("active-sort", "asc");
+                if (th.dataset.sort === st.key) {
+                    th.classList.add("active-sort");
+                    if (st.asc) th.classList.add("asc");
+                }
+            });
+        }
+
+        // ---- Rendering ----
+        function esc(s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+
+        function rankBadge(r) {
+            if (r <= 3) return '<span class="rank-badge rank-' + r + '">' + r + '</span>';
+            return r;
+        }
+
+        let currentSkaters = [], currentGoalies = [];
+
+        function renderSkaters() {
+            var sorted = sortData(currentSkaters, skaterSort);
+            document.getElementById("skaters-body").innerHTML = sorted.map(function (p, i) {
+                return '<tr>' +
+                    '<td class="rank-col">' + rankBadge(i + 1) + '</td>' +
+                    '<td class="player-col"><span class="player-name">' + esc(p.name) + '</span></td>' +
+                    '<td>' + esc(p.position) + '</td>' +
+                    '<td><span class="player-team-badge">' + esc(p.team) + '</span></td>' +
+                    '<td class="num-col">' + p.projected_gp + '</td>' +
+                    '<td class="num-col">' + p.projected_goals + '</td>' +
+                    '<td class="num-col">' + p.projected_assists + '</td>' +
+                    '<td class="num-col stat-highlight">' + p.projected_points + '</td>' +
+                    '<td class="num-col stat-highlight">' + p.fantasy_points + '</td>' +
+                    '</tr>';
+            }).join("");
+        }
+
+        function renderGoalies() {
+            var sorted = sortData(currentGoalies, goalieSort);
+            document.getElementById("goalies-body").innerHTML = sorted.map(function (g, i) {
+                return '<tr>' +
+                    '<td class="rank-col">' + rankBadge(i + 1) + '</td>' +
+                    '<td class="player-col"><span class="player-name">' + esc(g.name) + '</span></td>' +
+                    '<td><span class="player-team-badge">' + esc(g.team) + '</span></td>' +
+                    '<td class="num-col">' + g.projected_gp + '</td>' +
+                    '<td class="num-col">' + g.projected_wins + '</td>' +
+                    '<td class="num-col">' + g.projected_save_pct.toFixed(3) + '</td>' +
+                    '<td class="num-col">' + g.projected_gaa.toFixed(2) + '</td>' +
+                    '<td class="num-col">' + g.projected_shutouts + '</td>' +
+                    '<td class="num-col stat-highlight">' + g.fantasy_points + '</td>' +
+                    '</tr>';
+            }).join("");
+        }
+
+        function update() {
+            var regr = parseFloat(document.getElementById("regression").value) / 100;
+            var pos = document.getElementById("position").value;
+
+            currentSkaters = RAW_SKATERS.map(function (p) { return projectSkater(p, regr); });
+            currentSkaters.sort(function (a, b) { return b.fantasy_points - a.fantasy_points; });
+
+            currentGoalies = RAW_GOALIES.map(function (g) { return projectGoalie(g, regr); });
+            currentGoalies.sort(function (a, b) { return b.fantasy_points - a.fantasy_points; });
+
+            document.getElementById("skaters-section").style.display = (pos === "goalies") ? "none" : "block";
+            document.getElementById("goalies-section").style.display = (pos === "skaters") ? "none" : "block";
+
+            skaterSort = { key: "fantasy_points", asc: false };
+            goalieSort = { key: "fantasy_points", asc: false };
+            updateSortUI("skaters-table", skaterSort);
+            updateSortUI("goalies-table", goalieSort);
+
+            renderSkaters();
+            renderGoalies();
+        }
+
+        // ---- Event listeners ----
+        document.getElementById("regression").addEventListener("input", function () {
+            document.getElementById("regression-value").textContent = (this.value / 100).toFixed(2);
+        });
+
+        document.getElementById("refresh-btn").addEventListener("click", update);
+
+        document.querySelectorAll("#skaters-table th.sortable").forEach(function (th) {
+            th.addEventListener("click", function () {
+                var key = th.dataset.sort;
+                if (skaterSort.key === key) { skaterSort.asc = !skaterSort.asc; }
+                else { skaterSort = { key: key, asc: false }; }
+                updateSortUI("skaters-table", skaterSort);
+                renderSkaters();
+            });
+        });
+
+        document.querySelectorAll("#goalies-table th.sortable").forEach(function (th) {
+            th.addEventListener("click", function () {
+                var key = th.dataset.sort;
+                if (goalieSort.key === key) { goalieSort.asc = !goalieSort.asc; }
+                else { goalieSort = { key: key, asc: false }; }
+                updateSortUI("goalies-table", goalieSort);
+                renderGoalies();
+            });
+        });
+
+        // Initial render
+        update();
+    })();
+    </script>
+</body>
+</html>
