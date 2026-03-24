@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Hockey Projections</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Fantasy Hockey Projections</h1>
+            <p class="subtitle">NHL player stat projections for fantasy leagues</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="controls">
+            <div class="control-group">
+                <label for="source">Data Source</label>
+                <select id="source">
+                    <option value="sample">Sample Data</option>
+                    <option value="live">Live NHL API</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="regression">Regression Weight</label>
+                <input type="range" id="regression" min="0" max="100" value="15">
+                <span id="regression-value">0.15</span>
+            </div>
+            <div class="control-group">
+                <label for="position">Position</label>
+                <select id="position">
+                    <option value="all">All Players</option>
+                    <option value="skaters">Skaters Only</option>
+                    <option value="goalies">Goalies Only</option>
+                </select>
+            </div>
+            <button id="refresh-btn" class="btn-primary">Update Projections</button>
+        </section>
+
+        <section id="skaters-section" class="table-section">
+            <h2>Skater Projections</h2>
+            <div class="table-wrapper">
+                <table id="skaters-table">
+                    <thead>
+                        <tr>
+                            <th class="rank-col">Rank</th>
+                            <th class="player-col sortable" data-sort="name">Player</th>
+                            <th class="sortable" data-sort="position">Pos</th>
+                            <th class="sortable" data-sort="team">Team</th>
+                            <th class="num-col sortable" data-sort="projected_gp">GP</th>
+                            <th class="num-col sortable" data-sort="projected_goals">G</th>
+                            <th class="num-col sortable" data-sort="projected_assists">A</th>
+                            <th class="num-col sortable" data-sort="projected_points">PTS</th>
+                            <th class="num-col sortable active-sort" data-sort="fantasy_points">FPts</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="goalies-section" class="table-section">
+            <h2>Goalie Projections</h2>
+            <div class="table-wrapper">
+                <table id="goalies-table">
+                    <thead>
+                        <tr>
+                            <th class="rank-col">Rank</th>
+                            <th class="player-col sortable" data-sort="name">Player</th>
+                            <th class="sortable" data-sort="team">Team</th>
+                            <th class="num-col sortable" data-sort="projected_gp">GP</th>
+                            <th class="num-col sortable" data-sort="projected_wins">W</th>
+                            <th class="num-col sortable" data-sort="projected_save_pct">SV%</th>
+                            <th class="num-col sortable" data-sort="projected_gaa">GAA</th>
+                            <th class="num-col sortable" data-sort="projected_shutouts">SO</th>
+                            <th class="num-col sortable active-sort" data-sort="fantasy_points">FPts</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Loading projections...</p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Fantasy Hockey Projections &mdash; Pace-based projections with regression toward league averages</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
