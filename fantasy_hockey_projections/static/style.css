@@ -1,0 +1,350 @@
+:root {
+    --bg-dark: #0f1923;
+    --bg-card: #1a2733;
+    --bg-hover: #243442;
+    --border: #2d3f4f;
+    --text-primary: #e8edf2;
+    --text-secondary: #8899a6;
+    --accent: #1da1f2;
+    --accent-hover: #1a91da;
+    --gold: #ffd700;
+    --silver: #c0c0c0;
+    --bronze: #cd7f32;
+    --green: #17bf63;
+    --red: #e0245e;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header */
+header {
+    background: linear-gradient(135deg, #1a2733 0%, #0f1923 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 32px 0;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    align-items: flex-end;
+    gap: 24px;
+    flex-wrap: wrap;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 28px 0;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.control-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+}
+
+select, input[type="range"] {
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+input[type="range"] {
+    width: 160px;
+    padding: 8px 0;
+    -webkit-appearance: none;
+    background: transparent;
+    border: none;
+}
+
+input[type="range"]::-webkit-slider-track {
+    height: 6px;
+    background: var(--bg-dark);
+    border-radius: 3px;
+    border: 1px solid var(--border);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: -7px;
+}
+
+#regression-value {
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 600;
+    min-width: 32px;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 24px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: auto;
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* Tables */
+.table-section {
+    margin-bottom: 36px;
+}
+
+.table-section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+    padding-left: 4px;
+    border-left: 3px solid var(--accent);
+    padding-left: 12px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+thead {
+    background: var(--bg-card);
+}
+
+th {
+    padding: 12px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+    user-select: none;
+}
+
+th.sortable {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+th.sortable:hover {
+    color: var(--accent);
+}
+
+th.active-sort {
+    color: var(--accent);
+}
+
+th.active-sort::after {
+    content: ' \u25BC';
+    font-size: 0.7rem;
+}
+
+th.active-sort.asc::after {
+    content: ' \u25B2';
+}
+
+td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.num-col {
+    text-align: right;
+}
+
+.rank-col {
+    text-align: center;
+    width: 50px;
+}
+
+.player-col {
+    min-width: 180px;
+}
+
+tbody tr {
+    transition: background 0.15s;
+}
+
+tbody tr:hover {
+    background: var(--bg-hover);
+}
+
+/* Rank badges */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+
+.rank-1 {
+    background: var(--gold);
+    color: #1a1a1a;
+}
+
+.rank-2 {
+    background: var(--silver);
+    color: #1a1a1a;
+}
+
+.rank-3 {
+    background: var(--bronze);
+    color: #1a1a1a;
+}
+
+.player-name {
+    font-weight: 600;
+}
+
+.player-team-badge {
+    display: inline-block;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-left: 8px;
+}
+
+.stat-highlight {
+    color: var(--green);
+    font-weight: 600;
+}
+
+/* Loading */
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 0;
+    gap: 16px;
+}
+
+.loading.hidden {
+    display: none;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Footer */
+footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 0;
+    margin-top: 48px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.6rem;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-primary {
+        margin-left: 0;
+    }
+
+    table {
+        font-size: 0.8rem;
+    }
+
+    th, td {
+        padding: 8px 10px;
+    }
+}

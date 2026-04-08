@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fantasy-hockey-projections"
+version = "0.1.0"
+description = "NHL fantasy hockey player projection tool"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31.0",
+    "flask>=3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+]
+
+[project.scripts]
+fantasy-hockey = "fantasy_hockey_projections.cli:main"
+fantasy-hockey-web = "fantasy_hockey_projections.app:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
